@@ -3,7 +3,6 @@ from pydantic import Field
 
 
 class MySchemaPackageEntryPoint(SchemaPackageEntryPoint):
-
     def load(self):
         from nomad_damask_parser.schema_packages.mypackage import m_package
 
