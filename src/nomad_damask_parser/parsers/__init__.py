@@ -14,5 +14,5 @@ class MyParserEntryPoint(ParserEntryPoint):
 myparser = MyParserEntryPoint(
     name='MyParser',
     description='Parser defined using the new plugin mechanism.',
-    mainfile_name_re='.*\.myparser',
+    mainfile_name_re='.*\.hdf5',
 )

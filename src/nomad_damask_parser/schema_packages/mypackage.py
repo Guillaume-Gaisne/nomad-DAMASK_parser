@@ -55,7 +55,9 @@ class GeometryDataset(MSection):
 class Increment(MSection):
     increment_name = Quantity(type=str, description='Name of the increment')
     increment_geometry = SubSection(sub_section=GeometryDataset, repeats=False)
-    increment_homogenization = SubSection(sub_section=HomogenizationDataset, repeats=False)
+    increment_homogenization = SubSection(
+        sub_section=HomogenizationDataset, repeats=False
+    )
     increment_phase = SubSection(sub_section=PhaseDataset, repeats=False)
 
 
