@@ -1,19 +1,19 @@
-from typing import (
-    TYPE_CHECKING,
-)
+# from typing import (
+#     TYPE_CHECKING,
+# )
 
-if TYPE_CHECKING:
-    from nomad.datamodel.datamodel import (
-        EntryArchive,
-    )
-    from structlog.stdlib import (
-        BoundLogger,
-    )
+# if TYPE_CHECKING:
+#     from nomad.datamodel.datamodel import (
+#         EntryArchive,
+#     )
+#     from structlog.stdlib import (
+#         BoundLogger,
+#     )
 
-from numpy import array
+from numpy import float64
+
 from nomad.config import config
 from nomad.datamodel.data import Schema
-from nomad.datamodel.metainfo.annotations import ELNAnnotation, ELNComponentEnum
 from nomad.metainfo import Quantity, SchemaPackage, MSection, SubSection, MEnum
 
 configuration = config.get_plugin_entry_point(
@@ -22,6 +22,14 @@ configuration = config.get_plugin_entry_point(
 
 m_package = SchemaPackage()
 
+class CompoundDataset(MSection):
+    name = Quantity(type=str, description='Name of the dataset')
+    unit = Quantity(type=str, description='Unit of the data in this dataset')
+    shape = Quantity(type=int, shape=['*'], description='Shape of the data array')
+    description = Quantity(
+        type=str, description='Information about the nature of the dataset'
+    )
+    data = Quantity(type=str, description='Placeholder for now for the data')
 
 class Dataset(MSection):
     name = Quantity(type=str, description='Name of the dataset')
@@ -30,7 +38,8 @@ class Dataset(MSection):
     description = Quantity(
         type=str, description='Information about the nature of the dataset'
     )
-    data = Quantity(type=str, description='Placeholder for now for the data')
+    data = Quantity(type=float64, shape=shape, description='Placeholder for now for the data')
+
 
 
 ###############################################################################
@@ -46,7 +55,7 @@ class PhaseName(MSection):
 class HomogenizationField(MSection):
     homogenization_field = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
     homogenization_datasets = SubSection(sub_section=Dataset, repeats=True)
-    
+
 class HomogenizationName(MSection):
     homogenization_name = Quantity(
         type=str, description='User defined name of the homogenization'
@@ -95,7 +104,7 @@ class CellTo(MSection):
     description = Quantity(
         type=str, description='Information about the cell_to section'
     )
-    cell_to_datasets = SubSection(sub_section=Dataset, repeats=True)
+    cell_to_datasets = SubSection(sub_section=CompoundDataset, repeats=True)
 
 
 ###############################################################################
@@ -116,7 +125,9 @@ class DamaskOutput(Schema):
     homoginezation_names = Quantity(
         type=str,
         shape=['*'],
-        description='Unique names of the different homogenizations used in the simulation',
+        description='''
+        Unique names of the different homogenizations used in the simulation
+        ''',
     )
     points_number = Quantity(
         type=int, shape=[], description='Number of points in the simulation'
