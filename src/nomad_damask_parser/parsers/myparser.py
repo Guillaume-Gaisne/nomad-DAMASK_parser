@@ -27,6 +27,17 @@ class MyParser(MatchingParser):
     def get_attr(self, data, key):
         return data[key] if key in data else None
 
+
+###############################################################################
+    def extract_dataset(self, name, data, schema, section):
+        dataset = schema.m_create(section)
+        dataset.name = name
+        dataset.unit = self.get_attr(data.attrs, 'unit')
+        dataset.shape = list(data.shape)
+        dataset.description = self.get_attr(data.attrs, 'description')
+        dataset.data = data[()]
+
+
 ###############################################################################
     def parse_cell_to(self):
         cell_to = self.sec_data.m_create(damask.CellTo)
@@ -79,12 +90,7 @@ class MyParser(MatchingParser):
 
             geometry = increment.m_create(damask.GeometryDataset)
             for geo_name, geo_data in incr['geometry'].items():
-                geo_dataset = geometry.m_create(damask.Dataset)
-                geo_dataset.name = geo_name
-                geo_dataset.unit = self.get_attr(geo_data.attrs, 'unit')
-                geo_dataset.shape = list(geo_data.shape)
-                geo_dataset.description = self.get_attr(geo_data.attrs, 'description')
-                geo_dataset.data = geo_data[()]
+                self.extract_dataset(geo_name, geo_data, geometry, damask.Dataset)
 
             homogenizationname = increment.m_create(damask.HomogenizationName)
             for homogenization_name, homogenization_data in incr['homogenization'].items():
@@ -93,12 +99,12 @@ class MyParser(MatchingParser):
                 for field_name, field_data in homogenization_data.items():
                     homogenizationfield.homogenization_field = field_name
                     for data_name, data_data in field_data.items():
-                        homogenization_dataset = homogenizationfield.m_create(damask.Dataset)
-                        homogenization_dataset.name = data_name
-                        homogenization_dataset.unit = self.get_attr(data_data.attrs, 'unit')
-                        homogenization_dataset.shape = list(data_data.shape)
-                        homogenization_dataset.description = self.get_attr(data_data.attrs, 'description')
-                        homogenization_dataset.data = data_data[()]
+                        self.extract_dataset(
+                            data_name,
+                            data_data,
+                            homogenizationfield,
+                            damask.Dataset
+                        )
 
             phasename = increment.m_create(damask.PhaseName)
             for phase_name, phase_data in incr['phase'].items():
@@ -107,12 +113,12 @@ class MyParser(MatchingParser):
                 for field_name, field_data in phase_data.items():
                     phasefield.phase_field = field_name
                     for data_name, data_data in field_data.items():
-                        phase_dataset = phasefield.m_create(damask.Dataset)
-                        phase_dataset.name = data_name
-                        phase_dataset.unit = self.get_attr(data_data.attrs, 'unit')
-                        phase_dataset.shape = list(data_data.shape)
-                        phase_dataset.description = self.get_attr(data_data.attrs, 'description')
-                        phase_dataset.data = data_data[()]
+                        self.extract_dataset(
+                            data_name,
+                            data_data,
+                            phasefield,
+                            damask.Dataset
+                        )
 
 
 
