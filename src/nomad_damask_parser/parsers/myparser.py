@@ -29,13 +29,40 @@ class MyParser(MatchingParser):
 
 
 ###############################################################################
-    def extract_dataset(self, name, data, schema, section):
-        dataset = schema.m_create(section)
+    def extract_dataset(self, name, data, section):
+        """
+        name: name of the dataset to extract
+        data: dataset to extract
+        section: schema section that will contain the damask.Dataset section
+        """
+        dataset = section.m_create(damask.Dataset)
         dataset.name = name
         dataset.unit = self.get_attr(data.attrs, 'unit')
         dataset.shape = list(data.shape)
         dataset.description = self.get_attr(data.attrs, 'description')
         dataset.data = data[()]
+
+
+###############################################################################
+    def extract_increment_section(self, increment, group, group_name, sections):
+        """
+        increment: schema section of the increment
+        group: HDF5 group containing the datasets to extract
+        group_name: name of the HDF5 group
+        sections: list of the sub-sections inside the HDF5 group
+        """
+        section = increment.m_create(sections[0])
+        for section_name, section_data in group[group_name].items():
+            section.homogenization_name = section_name
+            field = section.m_create(sections[1])
+            for field_name, field_data in section_data.items():
+                field.homogenization_field = field_name
+                for data_name, data_data in field_data.items():
+                    self.extract_dataset(
+                        data_name,
+                        data_data,
+                        field,
+                    )
 
 
 ###############################################################################
@@ -84,43 +111,27 @@ class MyParser(MatchingParser):
 
 ###############################################################################
     def parse_increments(self):
-        for incr in self.increments:
+        for increment_group in self.increments:
             increment = self.sec_data.m_create(damask.Increment)
-            increment.increment_name = incr.name
+            increment.increment_name = increment_group.name
 
             geometry = increment.m_create(damask.GeometryDataset)
-            for geo_name, geo_data in incr['geometry'].items():
-                self.extract_dataset(geo_name, geo_data, geometry, damask.Dataset)
+            for geo_name, geo_data in increment_group['geometry'].items():
+                self.extract_dataset(geo_name, geo_data, geometry)
 
-            homogenizationname = increment.m_create(damask.HomogenizationName)
-            for homogenization_name, homogenization_data in incr['homogenization'].items():
-                homogenizationname.homogenization_name = homogenization_name
-                homogenizationfield = homogenizationname.m_create(damask.HomogenizationField)
-                for field_name, field_data in homogenization_data.items():
-                    homogenizationfield.homogenization_field = field_name
-                    for data_name, data_data in field_data.items():
-                        self.extract_dataset(
-                            data_name,
-                            data_data,
-                            homogenizationfield,
-                            damask.Dataset
-                        )
+            self.extract_increment_section(
+                increment,
+                increment_group,
+                'homogenization',
+                [damask.HomogenizationName, damask.HomogenizationField]
+            )
 
-            phasename = increment.m_create(damask.PhaseName)
-            for phase_name, phase_data in incr['phase'].items():
-                phasename.phase_name = phase_name
-                phasefield = phasename.m_create(damask.PhaseField)
-                for field_name, field_data in phase_data.items():
-                    phasefield.phase_field = field_name
-                    for data_name, data_data in field_data.items():
-                        self.extract_dataset(
-                            data_name,
-                            data_data,
-                            phasefield,
-                            damask.Dataset
-                        )
-
-
+            self.extract_increment_section(
+                increment,
+                increment_group,
+                'phase',
+                [damask.PhaseName, damask.PhaseField]
+            )
 
 
 ###############################################################################
@@ -179,4 +190,3 @@ class MyParser(MatchingParser):
         self.parse_geometry()
         self.parse_increments()
         self.parse_setup()
-        # archive.results = Results(material=Material(elements=['H', 'O']))
