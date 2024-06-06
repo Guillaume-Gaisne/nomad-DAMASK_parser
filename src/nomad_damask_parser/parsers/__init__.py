@@ -1,10 +1,7 @@
 from nomad.config.models.plugins import ParserEntryPoint
-from pydantic import Field
 
 
 class MyParserEntryPoint(ParserEntryPoint):
-    parameter: int = Field(0, description='Custom configuration parameter')
-
     def load(self):
         from nomad_damask_parser.parsers.myparser import MyParser
 
