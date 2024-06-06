@@ -34,18 +34,24 @@ class Dataset(MSection):
 
 
 ###############################################################################
-class PhaseDataset(MSection):
-    phase_name = Quantity(type=str, description='User defined name of the phase')
+class PhaseField(MSection):
     phase_field = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
     phase_datasets = SubSection(sub_section=Dataset, repeats=True)
 
+class PhaseName(MSection):
+    phase_name = Quantity(type=str, description='User defined name of the phase')
+    phase_fields = SubSection(sub_section=PhaseField, repeats=True)
 
-class HomogenizationDataset(MSection):
+
+class HomogenizationField(MSection):
+    homogenization_field = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
+    homogenization_datasets = SubSection(sub_section=Dataset, repeats=True)
+    
+class HomogenizationName(MSection):
     homogenization_name = Quantity(
         type=str, description='User defined name of the homogenization'
     )
-    homogenization_field = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
-    homogenization_datasets = SubSection(sub_section=Dataset, repeats=True)
+    homogenization_fields = SubSection(sub_section=HomogenizationField, repeats=True)
 
 
 class GeometryDataset(MSection):
@@ -56,9 +62,9 @@ class Increment(MSection):
     increment_name = Quantity(type=str, description='Name of the increment')
     increment_geometry = SubSection(sub_section=GeometryDataset, repeats=False)
     increment_homogenization = SubSection(
-        sub_section=HomogenizationDataset, repeats=False
+        sub_section=HomogenizationName, repeats=True
     )
-    increment_phase = SubSection(sub_section=PhaseDataset, repeats=False)
+    increment_phase = SubSection(sub_section=PhaseName, repeats=True)
 
 
 ###############################################################################
@@ -74,7 +80,7 @@ class Setup(MSection):
 ###############################################################################
 class Geometry(MSection):
     cells = Quantity(
-        type=float, shape=[3], description='Values corresponding to the cells'
+        type=int, shape=[3], description='Values corresponding to the cells'
     )
     origin = Quantity(
         type=float, shape=[3], description='Values corresponding to the origin'
@@ -123,8 +129,6 @@ class DamaskOutput(Schema):
     increments = SubSection(sub_section=Increment, repeats=True)
     setup = SubSection(sub_section=Setup, repeats=False)
 
-    # def normalize(self, archive: 'EntryArchive', logger: 'BoundLogger') -> None:
-    #     super().normalize(archive, logger)
 
 
 m_package.__init_metainfo__()
