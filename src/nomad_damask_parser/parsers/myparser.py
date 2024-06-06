@@ -15,7 +15,6 @@ import h5py
 import logging
 import numpy as np
 from nomad.config import config
-from nomad.datamodel.results import Material, Results
 from nomad.parsing.parser import MatchingParser
 
 import nomad_damask_parser.schema_packages.mypackage as damask
@@ -33,7 +32,7 @@ class MyParser(MatchingParser):
         cell_to = self.sec_data.m_create(damask.CellTo)
 
         for key in self.cell_to.keys():
-            dataset = cell_to.m_create(damask.Dataset)
+            dataset = cell_to.m_create(damask.CompoundDataset)
             key_data = self.cell_to.get(key)
             dataset.name = key
             dataset.description = self.get_attr(key_data.attrs, 'description')
@@ -43,7 +42,9 @@ class MyParser(MatchingParser):
             if key == 'homogenization':
                 self.sec_data.points_number = key_data.shape[0]
                 homoginezation_names = np.unique(key_data['label'])
-                self.sec_data.homoginezation_names = [name.decode('UTF-8') for name in homoginezation_names]
+                self.sec_data.homoginezation_names = [
+                    name.decode('UTF-8') for name in homoginezation_names
+                ]
 
             if key == 'phase':
                 phase_names = np.unique(key_data['label'])
@@ -83,7 +84,7 @@ class MyParser(MatchingParser):
                 geo_dataset.unit = self.get_attr(geo_data.attrs, 'unit')
                 geo_dataset.shape = list(geo_data.shape)
                 geo_dataset.description = self.get_attr(geo_data.attrs, 'description')
-                geo_dataset.data = str(geo_data.dtype)
+                geo_dataset.data = geo_data[()]
 
             homogenizationname = increment.m_create(damask.HomogenizationName)
             for homogenization_name, homogenization_data in incr['homogenization'].items():
@@ -97,7 +98,7 @@ class MyParser(MatchingParser):
                         homogenization_dataset.unit = self.get_attr(data_data.attrs, 'unit')
                         homogenization_dataset.shape = list(data_data.shape)
                         homogenization_dataset.description = self.get_attr(data_data.attrs, 'description')
-                        homogenization_dataset.data = str(data_data.dtype)
+                        homogenization_dataset.data = data_data[()]
 
             phasename = increment.m_create(damask.PhaseName)
             for phase_name, phase_data in incr['phase'].items():
@@ -111,7 +112,7 @@ class MyParser(MatchingParser):
                         phase_dataset.unit = self.get_attr(data_data.attrs, 'unit')
                         phase_dataset.shape = list(data_data.shape)
                         phase_dataset.description = self.get_attr(data_data.attrs, 'description')
-                        phase_dataset.data = str(data_data.dtype)
+                        phase_dataset.data = data_data[()]
 
 
 
@@ -125,7 +126,6 @@ class MyParser(MatchingParser):
         logger: 'BoundLogger',
         child_archives: dict[str, 'EntryArchive'] = None,
     ) -> None:
-        logger.info('MyParser.parse', parameter=configuration.parameter)
 
         self.filepath = filepath
         self.archive = archive
@@ -162,7 +162,7 @@ class MyParser(MatchingParser):
         self.version_major = self.get_attr(data_attr, key_v_major)
         self.version_minor = self.get_attr(data_attr, key_v_minor)
 
-        if not(self.version_major is None) and not(self.version_minor is None):
+        if self.version_major is not None and self.version_minor is not None:
             self.sec_data.code_version = f'{self.version_major}.{self.version_minor}'
 
         call_command = self.get_attr(data_attr, key_call)
