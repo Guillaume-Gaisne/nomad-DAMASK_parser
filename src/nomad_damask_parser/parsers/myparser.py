@@ -51,8 +51,8 @@ class MyParser(MatchingParser):
         group_name: name of the HDF5 group
         sections: list of the sub-sections inside the HDF5 group
         """
-        section = increment.m_create(sections[0])
         for section_name, section_data in group[group_name].items():
+            section = increment.m_create(sections[0])
             section.name = section_name
             field = section.m_create(sections[1])
             for field_name, field_data in section_data.items():
