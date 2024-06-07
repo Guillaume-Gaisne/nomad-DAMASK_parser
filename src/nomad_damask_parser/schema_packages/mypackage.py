@@ -10,7 +10,7 @@
 #         BoundLogger,
 #     )
 
-from numpy import float64
+from numpy import dtype
 
 from nomad.config import config
 from nomad.datamodel.data import Schema
@@ -38,7 +38,7 @@ class Dataset(MSection):
     description = Quantity(
         type=str, description='Information about the nature of the dataset'
     )
-    data = Quantity(type=float64, shape=shape, description='Placeholder for now for the data')
+    data = Quantity(type=dtype('float64'), shape=shape, description='Placeholder for now for the data')
 
 
 
