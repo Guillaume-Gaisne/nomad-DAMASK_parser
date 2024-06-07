@@ -53,10 +53,10 @@ class MyParser(MatchingParser):
         """
         section = increment.m_create(sections[0])
         for section_name, section_data in group[group_name].items():
-            section.homogenization_name = section_name
+            section.name = section_name
             field = section.m_create(sections[1])
             for field_name, field_data in section_data.items():
-                field.homogenization_field = field_name
+                field.name = field_name
                 for data_name, data_data in field_data.items():
                     self.extract_dataset(
                         data_name,
@@ -113,7 +113,7 @@ class MyParser(MatchingParser):
     def parse_increments(self):
         for increment_group in self.increments:
             increment = self.sec_data.m_create(damask.Increment)
-            increment.increment_name = increment_group.name
+            increment.name = increment_group.name
 
             geometry = increment.m_create(damask.GeometryDataset)
             for geo_name, geo_data in increment_group['geometry'].items():
