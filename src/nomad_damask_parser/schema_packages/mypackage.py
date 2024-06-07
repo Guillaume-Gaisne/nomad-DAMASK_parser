@@ -44,36 +44,34 @@ class Dataset(MSection):
 
 ###############################################################################
 class PhaseField(MSection):
-    phase_field = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
-    phase_datasets = SubSection(sub_section=Dataset, repeats=True)
+    name = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
+    datasets = SubSection(sub_section=Dataset, repeats=True)
 
 class PhaseName(MSection):
-    phase_name = Quantity(type=str, description='User defined name of the phase')
-    phase_fields = SubSection(sub_section=PhaseField, repeats=True)
+    name = Quantity(type=str, description='User defined name of the phase')
+    fields = SubSection(sub_section=PhaseField, repeats=True)
 
 
 class HomogenizationField(MSection):
-    homogenization_field = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
-    homogenization_datasets = SubSection(sub_section=Dataset, repeats=True)
+    name = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
+    datasets = SubSection(sub_section=Dataset, repeats=True)
 
 class HomogenizationName(MSection):
-    homogenization_name = Quantity(
-        type=str, description='User defined name of the homogenization'
-    )
-    homogenization_fields = SubSection(sub_section=HomogenizationField, repeats=True)
+    name = Quantity(type=str, description='User defined name of the homogenization')
+    fields = SubSection(sub_section=HomogenizationField, repeats=True)
 
 
 class GeometryDataset(MSection):
-    geometry_datasets = SubSection(sub_section=Dataset, repeats=True)
+    datasets = SubSection(sub_section=Dataset, repeats=True)
 
 
 class Increment(MSection):
-    increment_name = Quantity(type=str, description='Name of the increment')
-    increment_geometry = SubSection(sub_section=GeometryDataset, repeats=False)
-    increment_homogenization = SubSection(
+    name = Quantity(type=str, description='Name of the increment')
+    geometry = SubSection(sub_section=GeometryDataset, repeats=False)
+    homogenization = SubSection(
         sub_section=HomogenizationName, repeats=True
     )
-    increment_phase = SubSection(sub_section=PhaseName, repeats=True)
+    phase = SubSection(sub_section=PhaseName, repeats=True)
 
 
 ###############################################################################
@@ -83,7 +81,7 @@ class SetupFile(MSection):
 
 class Setup(MSection):
     description = Quantity(type=str, description='Information about the setup section')
-    setup_filenames = SubSection(sub_section=SetupFile, repeats=True)
+    filenames = SubSection(sub_section=SetupFile, repeats=True)
 
 
 ###############################################################################
@@ -104,7 +102,7 @@ class CellTo(MSection):
     description = Quantity(
         type=str, description='Information about the cell_to section'
     )
-    cell_to_datasets = SubSection(sub_section=CompoundDataset, repeats=True)
+    datasets = SubSection(sub_section=CompoundDataset, repeats=True)
 
 
 ###############################################################################
