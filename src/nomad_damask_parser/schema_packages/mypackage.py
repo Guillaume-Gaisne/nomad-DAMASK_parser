@@ -25,16 +25,17 @@ m_package = SchemaPackage()
 class CompoundDataset(MSection):
     name = Quantity(type=str, description='Name of the dataset')
     unit = Quantity(type=str, description='Unit of the data in this dataset')
-    shape = Quantity(type=int, shape=['*'], description='Shape of the data array')
+    shape = Quantity(type=dtype('int32'), shape=['*'], description='Shape of the data array')
     description = Quantity(
         type=str, description='Information about the nature of the dataset'
     )
-    data = Quantity(type=str, description='Placeholder for now for the data')
+    label = Quantity(type=str, shape=['*'], description='Label of the compound element')
+    entry = Quantity(type=dtype('int32'), shape=['shape'], description='Entry integer of the compound element')
 
 class Dataset(MSection):
     name = Quantity(type=str, description='Name of the dataset')
     unit = Quantity(type=str, description='Unit of the data in this dataset')
-    shape = Quantity(type=int, shape=['*'], description='Shape of the data array')
+    shape = Quantity(type=dtype('int32'), shape=['*'], description='Shape of the data array')
     description = Quantity(
         type=str, description='Information about the nature of the dataset'
     )
