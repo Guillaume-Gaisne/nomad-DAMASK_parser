@@ -75,7 +75,8 @@ class MyParser(MatchingParser):
             dataset.name = key
             dataset.description = self.get_attr(key_data.attrs, 'description')
             dataset.shape = list(key_data.shape)
-            dataset.data = str(key_data.dtype)
+            dataset.label = key_data['label'].astype(str).flatten()
+            dataset.entry = key_data['entry']
 
             if key == 'homogenization':
                 self.sec_data.points_number = key_data.shape[0]
