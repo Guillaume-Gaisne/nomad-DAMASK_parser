@@ -16,6 +16,7 @@ import logging
 import numpy as np
 from nomad.config import config
 from nomad.parsing.parser import MatchingParser
+from nomad.datamodel.results import Results, Method, Simulation, Properties
 
 import nomad_damask_parser.schema_packages.mypackage as damask
 
@@ -169,6 +170,16 @@ class MyParser(MatchingParser):
 
         archive.data = self.sec_data
 
+        results = Results()
+        method = Method()
+        simulation = Simulation()
+        program_name = 'DAMASK'
+
+        properties = Properties()
+        properties.n_calculations = len(self.increments)
+
+        results.properties = properties
+
         self.sec_data.number_increments = len(self.increments)
 
         key_v_major = 'DADF5_version_major'
@@ -182,6 +193,12 @@ class MyParser(MatchingParser):
 
         if self.version_major is not None and self.version_minor is not None:
             self.sec_data.code_version = f'{self.version_major}.{self.version_minor}'
+
+        simulation.program_name = program_name
+        simulation.program_version = self.sec_data.code_version
+        method.simulation = simulation
+        results.method = method
+        archive.results = results
 
         call_command = self.get_attr(data_attr, key_call)
         solver_command = call_command.split(' ')[0]
