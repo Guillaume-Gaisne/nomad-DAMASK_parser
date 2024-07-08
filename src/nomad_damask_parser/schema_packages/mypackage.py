@@ -10,7 +10,7 @@
 #         BoundLogger,
 #     )
 
-from numpy import dtype
+from numpy import dtype, str_
 
 from nomad.config import config
 from nomad.datamodel.data import Schema
@@ -22,31 +22,64 @@ configuration = config.get_plugin_entry_point(
 
 m_package = SchemaPackage()
 
-class CompoundDataset(MSection):
+class CompoundDataset1D(MSection):
+    dim0 = Quantity(type=int, description='1st dimension')
     name = Quantity(type=str, description='Name of the dataset')
     unit = Quantity(type=str, description='Unit of the data in this dataset')
-    shape = Quantity(type=dtype('int32'), shape=['*'], description='Shape of the data array')
     description = Quantity(
         type=str, description='Information about the nature of the dataset'
     )
-    label = Quantity(type=str, shape=['*'], description='Label of the compound element')
-    entry = Quantity(type=dtype('int32'), shape=['shape'], description='Entry integer of the compound element')
+    label = Quantity(type=str, shape=['dim0'], description='Label of the compound element')
+    entry = Quantity(type=dtype('int32'), shape=['dim0'], description='Entry integer of the compound element')
 
-class Dataset(MSection):
+class CompoundDataset2D(MSection):
+    dim0 = Quantity(type=int, description='1st dimension')
+    dim1 = Quantity(type=int, description='2nd dimension')
     name = Quantity(type=str, description='Name of the dataset')
     unit = Quantity(type=str, description='Unit of the data in this dataset')
-    shape = Quantity(type=dtype('int32'), shape=['*'], description='Shape of the data array')
     description = Quantity(
         type=str, description='Information about the nature of the dataset'
     )
-    data = Quantity(type=dtype('float64'), shape=['shape'], description='Placeholder for now for the data')
+    label = Quantity(type=str, shape=['dim0'], description='Label of the compound element')
+    entry = Quantity(type=dtype('int32'), shape=['dim0', 'dim1'], description='Entry integer of the compound element')
 
+class Dataset1D(MSection):
+    dim0 = Quantity(type=int, description='1st dimension')
+    name = Quantity(type=str, description='Name of the dataset')
+    unit = Quantity(type=str, description='Unit of the data in this dataset')
+    description = Quantity(
+        type=str, description='Information about the nature of the dataset'
+    )
+    data = Quantity(type=dtype('float64'), shape=['dim0'], description='Placeholder for now for the data')
+
+class Dataset2D(MSection):
+    dim0 = Quantity(type=int, description='1st dimension')
+    dim1 = Quantity(type=int, description='2nd dimension')
+    name = Quantity(type=str, description='Name of the dataset')
+    unit = Quantity(type=str, description='Unit of the data in this dataset')
+    description = Quantity(
+        type=str, description='Information about the nature of the dataset'
+    )
+    data = Quantity(type=dtype('float64'), shape=['dim0', 'dim1'], description='Placeholder for now for the data')
+
+class Dataset3D(MSection):
+    dim0 = Quantity(type=int, description='1st dimension')
+    dim1 = Quantity(type=int, description='2nd dimension')
+    dim2 = Quantity(type=int, description='3rd dimension')
+    name = Quantity(type=str, description='Name of the dataset')
+    unit = Quantity(type=str, description='Unit of the data in this dataset')
+    description = Quantity(
+        type=str, description='Information about the nature of the dataset'
+    )
+    data = Quantity(type=dtype('float64'), shape=['dim0', 'dim1', 'dim2'], description='Placeholder for now for the data')
 
 
 ###############################################################################
 class PhaseField(MSection):
     name = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
-    datasets = SubSection(sub_section=Dataset, repeats=True)
+    datasets1D = SubSection(sub_section=Dataset1D, repeats=True)
+    datasets2D = SubSection(sub_section=Dataset2D, repeats=True)
+    datasets3D = SubSection(sub_section=Dataset3D, repeats=True)
 
 class PhaseName(MSection):
     name = Quantity(type=str, description='User defined name of the phase')
@@ -55,7 +88,9 @@ class PhaseName(MSection):
 
 class HomogenizationField(MSection):
     name = Quantity(type=MEnum('mechanical', 'damage', 'thermal'))
-    datasets = SubSection(sub_section=Dataset, repeats=True)
+    datasets1D = SubSection(sub_section=Dataset1D, repeats=True)
+    datasets2D = SubSection(sub_section=Dataset2D, repeats=True)
+    datasets3D = SubSection(sub_section=Dataset3D, repeats=True)
 
 class HomogenizationName(MSection):
     name = Quantity(type=str, description='User defined name of the homogenization')
@@ -63,7 +98,9 @@ class HomogenizationName(MSection):
 
 
 class GeometryDataset(MSection):
-    datasets = SubSection(sub_section=Dataset, repeats=True)
+    datasets1D = SubSection(sub_section=Dataset1D, repeats=True)
+    datasets2D = SubSection(sub_section=Dataset2D, repeats=True)
+    datasets3D = SubSection(sub_section=Dataset3D, repeats=True)
 
 
 class Increment(MSection):
@@ -103,7 +140,10 @@ class CellTo(MSection):
     description = Quantity(
         type=str, description='Information about the cell_to section'
     )
-    datasets = SubSection(sub_section=CompoundDataset, repeats=True)
+    # datasets = SubSection(sub_section=CompoundDataset, repeats=True)
+    datasets1D = SubSection(section_def=CompoundDataset1D, repeats=True)
+    datasets2D = SubSection(section_def=CompoundDataset2D, repeats=True)
+    # phase = Quantity(type=HDF5Reference)
 
 
 ###############################################################################
