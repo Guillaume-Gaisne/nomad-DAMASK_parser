@@ -36,11 +36,22 @@ class MyParser(MatchingParser):
         data: dataset to extract
         section: schema section that will contain the damask.Dataset section
         """
-        dataset = section.m_create(damask.Dataset)
+        shape = list(data.shape)
+        if len(shape) == 1:
+            dataset = section.m_create(damask.Dataset1D)
+            dataset.dim0 = shape[0]
+
+        if len(shape) == 2:
+            dataset = section.m_create(damask.Dataset2D)
+            dataset.dim0, dataset.dim1 = shape[0], shape[1]
+
+        if len(shape) == 3:
+            dataset = section.m_create(damask.Dataset3D)
+            dataset.dim0, dataset.dim1, dataset.dim2 = shape[0], shape[1], shape[2]
+
+        dataset.description = self.get_attr(data.attrs, 'description')
         dataset.name = name
         dataset.unit = self.get_attr(data.attrs, 'unit')
-        dataset.shape = list(data.shape)
-        dataset.description = self.get_attr(data.attrs, 'description')
         dataset.data = data[()]
 
 
@@ -71,11 +82,16 @@ class MyParser(MatchingParser):
         cell_to = self.sec_data.m_create(damask.CellTo)
 
         for key in self.cell_to.keys():
-            dataset = cell_to.m_create(damask.CompoundDataset)
             key_data = self.cell_to.get(key)
+            shape = list(key_data.shape)
+            if len(shape) == 1:
+                dataset = cell_to.m_create(damask.CompoundDataset1D)
+                dataset.dim0 = shape[0]
+            if len(shape) == 2:
+                dataset = cell_to.m_create(damask.CompoundDataset2D)
+                dataset.dim0, dataset.dim1 = shape[0], shape[1]
             dataset.name = key
             dataset.description = self.get_attr(key_data.attrs, 'description')
-            dataset.shape = list(key_data.shape)
             dataset.label = key_data['label'].astype(str).flatten()
             dataset.entry = key_data['entry']
 
