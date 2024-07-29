@@ -3,6 +3,7 @@ site_description: A plugin containing the schema and the parser for DAMASK outpu
 site_author: Guillaume Gaisné
 
 repo_url: https://github.com/Guillaume-Gaisne/nomad-DAMASK_parser
+edit_uri: ""
 
 nav:
   - Home: index.md
@@ -28,6 +29,8 @@ theme:
   features:
     - navigation.instant
   custom_dir: docs/theme
+  icon:
+    repo: fontawesome/brands/github
 markdown_extensions:
   - attr_list
   - md_in_html
