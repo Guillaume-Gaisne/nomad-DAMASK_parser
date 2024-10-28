@@ -161,7 +161,7 @@ class DamaskOutput(Schema):
         shape=['*'],
         description='Unique names of the different phases used in the simulation',
     )
-    homoginezation_names = Quantity(
+    homogenization_names = Quantity(
         type=str,
         shape=['*'],
         description='''
